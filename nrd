@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Map short keys to frontend project paths
+declare -A PROJECTS=(
+  [nw]="$HOME/Repos/EquiForge/src/EquiForge.Nightwatch"
+  [so]="$HOME/Repos/EquiForge/src/EquiForge.ShowOffice"
+  [hv]="$HOME/Repos/EquiForge/src/Haven"
+  [ex]="$HOME/Repos/EquiForge/src/Exhibitor"
+)
+
+# Parse arguments
+if [[ $# -lt 1 ]]; then
+  echo "Usage: dnf <nw|so|hv|ex> [extra npm args...]"
+  exit 1
+fi
+
+key="$1"
+shift || true
+args=("$@")
+
+project_path="${PROJECTS[$key]:-}"
+
+if [[ -z "$project_path" ]]; then
+  echo "❌ Unknown project key: $key"
+  echo "Available keys:"
+  for k in "${!PROJECTS[@]}"; do
+    printf "  %-3s → %s\n" "$k" "${PROJECTS[$k]}"
+  done
+  exit 1
+fi
+
+# Change to the frontend project directory
+echo "🚀 Starting frontend $key → $project_path"
+cd "$project_path" || { echo "❌ Failed to cd to $project_path"; exit 1; }
+
+# Run npm dev command with extra args
+npm run dev "${args[@]}"

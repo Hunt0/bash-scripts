@@ -5,8 +5,8 @@ set -euo pipefail
 declare -A PROJECTS=(
   [nw]="$HOME/Repos/EquiForge/src/EquiForge.Nightwatch"
   [so]="$HOME/Repos/EquiForge/src/EquiForge.ShowOffice"
-  [hv]="$HOME/Repos/EquiForge/src/Haven"
-  [ex]="$HOME/Repos/EquiForge/src/Exhibitor"
+  [hv]="$HOME/Repos/EquiForge/src/EquiForge.Haven"
+  [ex]="$HOME/Repos/EquiForge/src/EquiForge.Exhibitor"
 )
 
 # Parse arguments

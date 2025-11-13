@@ -1,0 +1,108 @@
+#!/bin/bash
+set -e  # exit on error
+
+# -----------------------------
+# Usage check
+# -----------------------------
+if [ -z "$1" ] || [ -z "$2" ]; then
+  echo "❌ Error: Project and destination key must be provided."
+  echo "Usage: ./local-build-test.sh <core|ui> <nw|so|hv|ex>"
+  exit 1
+fi
+
+PROJECT_KEY="$1"
+DEST_KEY="$2"
+
+# -----------------------------
+# Map project key to repo path and package name
+# -----------------------------
+case "$PROJECT_KEY" in
+  core)
+    REPO_DIR="$HOME/Repos/equiforge-web-core"
+    PACKAGE_NAME="@wec-labs/equiforge-web-core"
+    ;;
+  ui)
+    REPO_DIR="$HOME/Repos/equiforge-ui"
+    PACKAGE_NAME="@wec-labs/equiforge-ui"
+    ;;
+  *)
+    echo "❌ Error: Unknown project key '$PROJECT_KEY'. Use 'core' or 'ui'."
+    exit 1
+    ;;
+esac
+
+# -----------------------------
+# Map destination key to destination path
+# -----------------------------
+declare -A PROJECTS=(
+  [nw]="$HOME/Repos/EquiForge/src/EquiForge.Nightwatch"
+  [so]="$HOME/Repos/EquiForge/src/EquiForge.ShowOffice"
+  [hv]="$HOME/Repos/EquiForge/src/EquiForge.Haven"
+  [ex]="$HOME/Repos/EquiForge/src/EquiForge.Exhibitor"
+)
+
+DEST_DIR="${PROJECTS[$DEST_KEY]}"
+
+if [ -z "$DEST_DIR" ]; then
+  echo "❌ Error: Unknown destination key '$DEST_KEY'. Use one of: ${!PROJECTS[@]}"
+  exit 1
+fi
+
+# -----------------------------
+# Navigate to project directory
+# -----------------------------
+echo "📁 Switching to project directory: $REPO_DIR"
+cd "$REPO_DIR"
+
+# -----------------------------
+# Clean old .tgz files
+# -----------------------------
+OLD_TGZ=$(ls *.tgz 2>/dev/null || true)
+if [ -n "$OLD_TGZ" ]; then
+  echo "🧹 Cleaning up existing .tgz file(s): $OLD_TGZ"
+  rm -f *.tgz
+fi
+
+# -----------------------------
+# Build & pack
+# -----------------------------
+echo "🔧 Building project..."
+npm run build
+
+echo "📦 Packing npm package..."
+npm pack
+
+PKG_FILE=$(ls *.tgz)
+if [ -z "$PKG_FILE" ]; then
+  echo "❌ Error: No .tgz file found!"
+  exit 1
+fi
+
+echo "✅ Package created: $PKG_FILE"
+
+# -----------------------------
+# Move package to destination
+# -----------------------------
+mkdir -p "$DEST_DIR"
+if [ -f "$DEST_DIR/$PKG_FILE" ]; then
+  echo "🧹 Removing existing $PKG_FILE in $DEST_DIR"
+  rm -f "$DEST_DIR/$PKG_FILE"
+fi
+
+echo "📂 Moving $PKG_FILE → $DEST_DIR"
+mv "$PKG_FILE" "$DEST_DIR"
+
+# -----------------------------
+# Install package in destination
+# -----------------------------
+cd "$DEST_DIR"
+
+if npm list "$PACKAGE_NAME" &>/dev/null; then
+  echo "🗑️ Uninstalling existing $PACKAGE_NAME"
+  npm uninstall "$PACKAGE_NAME"
+fi
+
+echo "📥 Installing $PKG_FILE as $PACKAGE_NAME"
+npm install "./$PKG_FILE"
+
+echo "🎉 Done!"

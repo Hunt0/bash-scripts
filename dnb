@@ -1,0 +1,35 @@
+#!/bin/bash
+set -euo pipefail
+
+# --- shorthand mapping ---
+declare -A PROJECTS=(
+  [nw]="$HOME/Repos/EquiForge/src/EquiForge.NightwatchApi"
+  [so]="$HOME/Repos/EquiForge/src/EquiForge.ShowOfficeApi"
+  [hv]="$HOME/Repos/EquiForge/src/EquiForge.HavenApi"
+  [ex]="$HOME/Repos/EquiForge/src/EquiForge.ExhibitorApi"
+)
+
+# --- argument parsing ---
+if [[ $# -lt 1 ]]; then
+  echo "Usage: start <nw|so|hv|ex> [extra args...]"
+  exit 1
+fi
+
+key="$1"
+shift || true
+args=("$@")
+
+project_path="${PROJECTS[$key]:-}"
+
+if [[ -z "$project_path" ]]; then
+  echo "❌ Unknown project key: $key"
+  echo "Available keys:"
+  for k in "${!PROJECTS[@]}"; do
+    printf "  %-3s → %s\n" "$k" "${PROJECTS[$k]}"
+  done
+  exit 1
+fi
+
+# --- main command ---
+echo "🚀 Starting ${key} → $project_path"
+dotnet build "$project_path" "${args[@]}"

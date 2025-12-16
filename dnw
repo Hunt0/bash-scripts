@@ -7,6 +7,9 @@ declare -A PROJECTS=(
   [so]="$HOME/Repos/EquiForge/src/EquiForge.ShowOfficeApi"
   [hv]="$HOME/Repos/EquiForge/src/EquiForge.HavenApi"
   [ex]="$HOME/Repos/EquiForge/src/EquiForge.ExhibitorApi"
+  [app]="$HOME/Repos/EquiForge/src/EquiForge.AppHost"
+  [core]="$HOME/Repos/EquiForge/src/EquiForge.Core"
+  [sd]="$HOME/Repos/EquiForge/src/EquiForge.ServiceDefaults"
 )
 
 # --- argument parsing ---

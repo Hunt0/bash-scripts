@@ -10,6 +10,7 @@ declare -A PROJECTS=(
   [app]="$HOME/Repos/EquiForge/src/EquiForge.AppHost"
   [core]="$HOME/Repos/EquiForge/src/EquiForge.Core"
   [sd]="$HOME/Repos/EquiForge/src/EquiForge.ServiceDefaults"
+  [usef]="$HOME/Repos/EquiForge/src/EquiForge.Usef"
 )
 
 # --- argument parsing ---
